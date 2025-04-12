@@ -1,6 +1,6 @@
 {
-  "name": "ems",
-  "version": "1.0.0",
+  "name": "event-management-system",
+  "version": "0.0.1",
   "description": "",
   "license": "ISC",
   "author": "",
@@ -10,7 +10,11 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.17.1",
-    "uuid": "3.4.0"
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "uuid": "11.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
   }
 }
