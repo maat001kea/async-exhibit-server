@@ -22,6 +22,13 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: "Noget gik galt!" });
 });
 
+app.get("/", function (req, res) {
+  res.json({
+    isMyServerLive: true,
+    suggestions: "Try visiting /events or /locations",
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Serveren kører på http://localhost:${PORT}`);
 });
