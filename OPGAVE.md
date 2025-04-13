@@ -92,7 +92,7 @@ Følgende wireframe-illustration viser en mulig opdeling af systemet:
 | Som kurator: Jeg vil se en liste over mine events og redigere eller slette dem, hvis nødvendigt.                  | Systemet returnerer en liste over events (via GET /events), og for hvert event en "Redigér" og "Slet"-knap. Ved sletning returneres bekræftelse, ved redigering tjekkes konflikter. |
 | Som bruger: Jeg vil se en liste over tilgængelige events, så jeg kan vælge, hvilket jeg vil besøge.               | En GET-anmodning til /events returnerer offentlige events. Brugeren kan klikke ind på det enkelte event for at se detaljer.                                                         |
 | Som bruger: Jeg vil se detaljer for et event (titel, lokation, billeder mv.), så jeg kan få de fulde oplysninger. | En GET-anmodning til /events/:id returnerer detaljer om det valgte event, inklusiv SMK-værker.                                                                                      |
-| Som bruger: Jeg vil booke billetter, så jeg er sikker på en plads.                                                | En PUT-anmodning til /events/:id/book tjekker tilgængeligt billetantal, booker billetter (evt. med mutex-lås) og returnerer det opdaterede event.                                   |
+| Som bruger: Jeg vil booke billetter, så jeg er sikker på en plads.                                                | En PUT-anmodning til /events/:id/book tjekker tilgængeligt billetantal, booker billetter og returnerer det opdaterede event.                                                        |
 
 ---
 
