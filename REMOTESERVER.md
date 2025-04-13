@@ -35,7 +35,7 @@ Følg disse trin for at deploye dit repository via GitHub:
 5. **Deployment færdiggøres:**
 
    - Klik på "Deploy Web Service".
-   - Når deployment er færdig, vil Render give din server et unikt domænenavn, f.eks. `your-app-name.onrender.com`.
+   - Når den har deployet, vil Render give din server et unikt domænenavn, f.eks. `your-app-name.onrender.com`.
 
 6. **Test din server:**
    - Besøg din applikation via URL'en (fx `https://your-app-name.onrender.com`).
@@ -53,14 +53,12 @@ Dette vil starte en server på `http://localhost:8080`. Åbn denne URL i din bro
 
 ### Bemærk venligst
 
-**Dvale:** Render's gratis-version har en inaktivitetstid (ca. 15 minutter) før applikationen går i dvale for at spare ressourcer. Dette vil sandsynligvis forstyrre Next.js ved serverside-fetching, hvilket er OK — det er trods alt en gratis service. Opdater blot siden, så virker alt fint.
+Render's gratis-version har en inaktivitetstid (ca. 15 minutter) før applikationen går i dvale for at spare ressourcer.
 
-Hvis din applikation går i dvale, starter den op igen – men der kan opstå en kort forsinkelse (op til 50 sekunder) ved den første anmodning. Derfor kan det være en god idé at implementere en loader/spinner i jeres frontend (fx loading.js).
+Hvis din applikation går i dvale, starter den op igen – men der kan opstå en kort forsinkelse (op til 50 sekunder) ved den første anmodning. Dette vil sandsynligvis forstyrre Next.js ved serverside-fetching, hvilket er OK — det er trods alt en gratis service. Opdater blot siden, så virker alt fint.
+Det kan derfor være en god idé at implementere en loader/spinner i jeres frontend (fx loading.js).
 
 ### Endpoints
 
 Alle endpoints til jeres backend er dokumenteret her: [API Documentation](https://daviatkea.github.io/API/).
 
----
-
-Held og lykke med deployment, og sørg for at teste din løsning, så frontend og backend integreres uden problemer!
