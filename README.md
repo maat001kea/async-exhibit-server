@@ -12,7 +12,7 @@ I skal lave et Event Management System for en kurator fra Statens Museum for Kun
 
 Backendteamet har oprettet lidt dokumentation til jer.
 
-[Dokumentation til opsætning af jeres servere](GLITCH.md)
+[Dokumentation til opsætning af jeres servere](REMOTESERVER.md)
 
 [API-dokumentation](https://daviatkea.github.io/API/)
 
