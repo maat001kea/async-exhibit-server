@@ -41,7 +41,7 @@ Følg disse trin for at deploye dit repository via GitHub:
    - Besøg din applikation via URL'en (fx `https://your-app-name.onrender.com`).
    - Tilføj endpointet `/events` til URL'en for at sikre, at backend'en kører korrekt (fx `https://your-app-name.onrender.com/events`).
 
-### Lokal Server (under udvikling)
+### Lokal server (under udvikling)
 
 Bør bruges under udvikling. Det er hurtigere og bruger færre ressourcer.
 
@@ -61,4 +61,3 @@ Det kan derfor være en god idé at implementere en loader/spinner i jeres front
 ### Endpoints
 
 Alle endpoints til jeres backend er dokumenteret her: [API Documentation](https://daviatkea.github.io/API/).
-

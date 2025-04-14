@@ -23,9 +23,9 @@ Følgende wireframe-illustration viser en mulig opdeling af systemet:
 
 ![Wireframe eksempel](public/wireframe.png)
 
-## Krav til Systemet
+## Krav til systemet
 
-### 1. Oprettelse og Vedligeholdelse af Events (bag login)
+### 1. Oprettelse og vedligeholdelse af events (bag login)
 
 - Kuratorer kan logge ind (fx via Clerk) og se et interface til oprettelse af et nyt event.
 - Et event skal indeholde:
@@ -39,7 +39,7 @@ Følgende wireframe-illustration viser en mulig opdeling af systemet:
   - Redigere eventet (ret dato, beskrivelse, værker m.v.)
   - Slette eventet
 
-### 2. Offentlig Visning (ingen login påkrævet)
+### 2. Offentlig visning (ingen login påkrævet)
 
 - En liste over alle events (dem, der er synlige for offentligheden).
 - For hvert event en detalje-side, der viser:
@@ -53,13 +53,13 @@ Følgende wireframe-illustration viser en mulig opdeling af systemet:
 > [!NOTE]
 > Denne side skal visuelt adskille sig fra kuratorens oprettelsesflow og vise værkerne i en mere visuel præsentation.
 
-### 3. SMK API Integration
+### 3. SMK API-integration
 
 - Ved oprettelse eller redigering af et event skal kuratoren kunne søge i SMK's API (f.eks. via et søgefelt) for at finde kunstværker, der skal tilføjes eventet.
 - Hvert værk i SMK's API har en unik ID eller URL, som gemmes i eventets artworkIds-felt.
 - Public side: Viser værkerne med billede (thumbnail) og relevante metadata, så besøgende kan se, hvilke værker der bliver udstillet.
 
-### 4. Booking og Grænser
+### 4. Booking og grænser
 
 - Der er et maksimalt antal billetter til eventet (defineret af lokationens kapacitet).
 - Brugeren må ikke kunne booke flere billetter, end der er tilgængelige.
@@ -67,7 +67,7 @@ Følgende wireframe-illustration viser en mulig opdeling af systemet:
   - Succes (billetter er booket)
   - Fejl (der er ikke nok pladser tilbage)
 
-### 5. Datavalidering og Konflikthåndtering
+### 5. Datavalidering og konflikthåndtering
 
 - Et event kan ikke oprettes/ændres, hvis samme lokation allerede er optaget på den samme dato.
 - Hvis booking overskrider kapaciteten, returneres en 400 Bad Request eller tilsvarende.
@@ -77,12 +77,12 @@ Følgende wireframe-illustration viser en mulig opdeling af systemet:
 - Kun kuratoren (fx via Clerk) må kunne oprette, rette og slette events.
 - Offentligheden må kun se events og booke billetter.
 
-### 7. Yderligere Funktioner
+### 7. Yderligere funktioner
 
 - Filtrering og/eller sortering af events (f.eks. efter dato, popularitet, mm.).
 - Opdel event-visningen i "publik events" og "kladder" (events, der endnu ikke er udgivet).
 
-## User Stories
+## User stories
 
 | User Story                                                                                                        | Expected Behavior                                                                                                                                                                   |
 | ----------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
