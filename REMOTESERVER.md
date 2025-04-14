@@ -60,4 +60,20 @@ Det kan derfor være en god idé at implementere en loader/spinner i jeres front
 
 ### Endpoints
 
-Alle endpoints til jeres backend er dokumenteret her: [API Documentation](https://daviatkea.github.io/API/).
+Serveren understøtter følgende endpoints:
+
+| Metode | Endpoint           | Funktion                                  |
+| ------ | ------------------ | ----------------------------------------- |
+| GET    | `/dates`           | Hent tilladte datoer for events           |
+| GET    | `/locations`       | Hent mulige lokationer og deres kapacitet |
+| GET    | `/events`          | Hent alle events                          |
+| GET    | `/events/:id`      | Hent ét specifikt event                   |
+| POST   | `/events`          | Opret et nyt event (kun kurator)          |
+| PATCH  | `/events/:id`      | Rediger et eksisterende event             |
+| DELETE | `/events/:id`      | Slet et event                             |
+| PUT    | `/events/:id/book` | Book billetter til et event               |
+| POST   | `/events/reset`    | Nulstil events til testdata               |
+
+Alle events er in-memory (ingen database). Ved reset nulstilles systemet.
+
+Alle endpoints til jeres backend er yderligere dokumenteret her: [API Documentation](https://daviatkea.github.io/API/).
