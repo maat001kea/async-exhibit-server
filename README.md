@@ -1,4 +1,6 @@
-# Frontend-eksamensprojekt – Event Management System
+# Async/Exhibit, Frontend-eksamensprojekt 2025
+
+Exhibitions. Asynchronously curated.
 
 ## TL;DR
 
