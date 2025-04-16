@@ -10,7 +10,7 @@ I skal lave et Event Management System for en kurator fra Statens Museum for Kun
 
 Kurator-funktionerne skal være beskyttet bag et login.
 
-Se flere detaljer og krav til opgaven i [opgavebeskrivelsen](OPGAVE.md).
+Se flere detaljer og krav i [opgavebeskrivelsen](OPGAVE.md).
 
 ---
 
