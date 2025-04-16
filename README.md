@@ -1,6 +1,8 @@
-# Async/Exhibit, Frontend-eksamensprojekt 2025
+![Logo](public/logo.png)
 
 "Exhibitions. Asynchronously curated."
+
+# Frontend-eksamensprojekt 2025
 
 ## Kort fortalt
 
@@ -24,5 +26,3 @@ For at løse opgaven skal I bruge følgende:
 ## Om projektet
 
 Dette projekt er udviklet som del af eksamen i frontend-valgfaget på KEA. Det simulerer en realistisk API til håndtering af kunst-events og billetbestilling.
-
-![Logo](public/logo.png)
