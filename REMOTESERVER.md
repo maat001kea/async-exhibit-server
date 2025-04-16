@@ -1,55 +1,42 @@
-# Frontend valgfag
+# Deployment med Render
 
-## Deployment med Render
+Da I ikke kan aflevere jeres eksamensprojekt med en lokal udviklingsserver, skal I deploye jeres backend til en fjernserver, inden I afleverer.
 
-### Hvad er dette?
+Det er en god idé at gøre det tidligt i forløbet, så I kan teste jeres frontend mod den deployede backend en gang i mellem.
 
-For at løse eksamensopgaven skal du forbinde din frontend til et backend, som vi har bygget.
+I har kun brug for én fjernserver pr. gruppe, så vælg vedkommende, der ejer eksamensprojektets repository til at gøre det.
 
-Du har kun brug for én server pr. gruppe, så vælg én til at gøre det. Vi bruger render.com, da det er gratis.
+Vi bruger render.com, da det er gratis.
 
-### Fjernserver på Render
+## Fjernserver på Render
 
-Følg disse trin for at deploye dit repository via GitHub:
+Følg disse trin for at deploye din backend (via GitHub):
 
-1. **Fork repository:**
-
-   - Fork dette repository, så du har din egen version på GitHub.
-
-2. **Opret en konto på Render:**
+1. **Opret en konto på Render:**
 
    - Gå til [Render](https://render.com) og log ind med din GitHub-konto.
 
-3. **Opret en ny Web Service:**
+2. **Opret en ny Web Service:**
 
-   - Klik på "New" og vælg "Web Service".
+   - Klik på "New" eller "Add new" og vælg "Web Service".
+     ![New Web Service](public/webservice.png)
    - Vælg dit repository fra GitHub.
    - Konfigurer buildindstillingerne – se næste punkt.
 
-4. **Vælg Free og Region:**
+3. **Vælg Free og Region:**
 
    - I deployment-indstillingerne skal du vælge **Free**.
      ![Free tier](public/freetier.png)
    - Sæt din "Region" til **Frankfurt** for optimal performance.
 
-5. **Deployment færdiggøres:**
+4. **Deployment færdiggøres:**
 
    - Klik på "Deploy Web Service".
    - Når den har deployet, vil Render give din server et unikt domænenavn, f.eks. `your-app-name.onrender.com`.
 
-6. **Test din server:**
+5. **Test din server:**
    - Besøg din applikation via URL'en (fx `https://your-app-name.onrender.com`).
    - Tilføj endpointet `/events` til URL'en for at sikre, at backend'en kører korrekt (fx `https://your-app-name.onrender.com/events`).
-
-### Lokal server (under udvikling)
-
-Bør bruges under udvikling. Det er hurtigere og bruger færre ressourcer.
-
-1. Klon dit repository.
-2. Kør `npm install`.
-3. Kør `npm run dev`.
-
-Dette vil starte en server på `http://localhost:8080`. Åbn denne URL i din browser og tilføj `/events` for at teste backend'et.
 
 ### Bemærk venligst
 
@@ -57,23 +44,3 @@ Render's gratis-version har en inaktivitetstid (ca. 15 minutter) før applikatio
 
 Hvis din applikation går i dvale, starter den op igen – men der kan opstå en kort forsinkelse (op til 50 sekunder) ved den første anmodning. Dette vil sandsynligvis forstyrre Next.js ved serverside-fetching, hvilket er OK — det er trods alt en gratis service. Opdater blot siden, så virker alt fint.
 Det kan derfor være en god idé at implementere en loader/spinner i jeres frontend (fx loading.js).
-
-### Endpoints
-
-Serveren understøtter følgende endpoints:
-
-| Metode | Endpoint           | Funktion                                  |
-| ------ | ------------------ | ----------------------------------------- |
-| GET    | `/dates`           | Hent tilladte datoer for events           |
-| GET    | `/locations`       | Hent mulige lokationer og deres kapacitet |
-| GET    | `/events`          | Hent alle events                          |
-| GET    | `/events/:id`      | Hent ét specifikt event                   |
-| POST   | `/events`          | Opret et nyt event (kun kurator)          |
-| PATCH  | `/events/:id`      | Rediger et eksisterende event             |
-| DELETE | `/events/:id`      | Slet et event                             |
-| PUT    | `/events/:id/book` | Book billetter til et event               |
-| POST   | `/events/reset`    | Nulstil events til testdata               |
-
-Alle events er in-memory (ingen database). Ved reset nulstilles systemet.
-
-Alle endpoints til jeres backend er yderligere dokumenteret her: [API Documentation](https://daviatkea.github.io/API/).

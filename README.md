@@ -1,27 +1,26 @@
 # Async/Exhibit, Frontend-eksamensprojekt 2025
 
-Exhibitions. Asynchronously curated.
+"Exhibitions. Asynchronously curated."
 
-## TL;DR
+## Kort fortalt
 
-I skal lave et Event Management System for en kurator fra Statens Museum for Kunst (SMK) samt event-sites, hvor besøgende kan se eventdetaljer og booke billetter.
+I skal lave et Event Management System for en kurator fra Statens Museum for Kunst (SMK), hvor denne skal kunne oprette events og tilknytte værker fra SMK's API. Besøgende skal kunne se en liste over events og booke billetter hertil.
 
-## Event Management Systemet
+Kurator-funktionerne skal være beskyttet bag et login.
 
-[Overblik og krav til opgaven](OPGAVE.md)
+Se flere detaljer og krav til opgaven i [opgavebeskrivelsen](OPGAVE.md).
 
-## API
+---
 
-Backendteamet har oprettet lidt dokumentation til jer.
+## Nødvendige ressourcer
 
-[Dokumentation til opsætning af jeres servere](REMOTESERVER.md)
+For at løse opgaven skal I bruge følgende:
 
-[API-dokumentation](https://daviatkea.github.io/API/)
-
-## Øvrige ressourcer
-
-- [SMK API](https://api.smk.dk/api/v1/docs/) (læs evt. [om API'et](https://www.smk.dk/article/om-smk-open/))
-- Clerk til authentication
-  - [Clerk Setup](https://clerk.com/docs/quickstarts/setup-clerk)
-  - [Clerk Quickstart](https://clerk.com/docs/quickstarts/nextjs)
+- En backend-server - se [vejledning til opsætning](REMOTESERVER.md)
+- [SMK API](https://api.smk.dk/api/v1/docs/) - (læs evt. også [om API'et](https://www.smk.dk/article/om-smk-open/))
+- [Clerk](CLERK.md) til autentificering
 - Evt. Supabase til opsamling af data på billetter
+
+## Om projektet
+
+Dette projekt er udviklet som del af eksamen i frontend-valgfaget på KEA. Det simulerer en realistisk API til håndtering af kunst-events og billetbestilling.
