@@ -18,7 +18,7 @@ Se flere detaljer og krav i [opgavebeskrivelsen](OPGAVE.md).
 
 For at løse opgaven skal I bruge følgende:
 
-- En backend-server - se [vejledning til opsætning](REMOTESERVER.md)
+- En backend-server - se [vejledning til opsætning](BACKEND.md)
 - [SMK API](https://api.smk.dk/api/v1/docs/) - (læs evt. også [om API'et](https://www.smk.dk/article/om-smk-open/))
 - [Clerk](CLERK.md) til autentificering
 - Evt. Supabase til opsamling af data på billetter
