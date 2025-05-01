@@ -82,7 +82,11 @@ Følgende wireframe-illustration viser en mulig opdeling af systemet:
 ### 7. Yderligere funktioner
 
 - Filtrering og/eller sortering af events (f.eks. efter dato, popularitet, mm.).
-- Opdel event-visningen i "publik events" og "kladder" (events, der endnu ikke er udgivet).
+- Opdel fx event-visningen i "publik events" og "kladder" (events, der endnu ikke er udgivet).
+- Booking-flowet
+  - Visning af en kvittering med eventdetaljer og bekræftelse på booking.
+  - Opsamling af brugerens oplysninger (navn, e-mail) ved booking i SupaBase.
+    - Evt. kun én booking pr. event pr. e-mail: Systemet skal sikre, at hver e-mailadresse kun kan booke billetter til det samme event én gang. Ved forsøg på at booke flere gange med samme e-mail til et event, skal brugeren få en fejlbesked om, at der allerede er foretaget en booking ().
 
 ## User stories
 
