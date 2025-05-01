@@ -86,7 +86,7 @@ Følgende wireframe-illustration viser en mulig opdeling af systemet:
 - Booking-flowet
   - Visning af en kvittering med eventdetaljer og bekræftelse på booking.
   - Opsamling af brugerens oplysninger (navn, e-mail) ved booking i SupaBase.
-    - Evt. kun én booking pr. event pr. e-mail: Systemet skal sikre, at hver e-mailadresse kun kan booke billetter til det samme event én gang. Ved forsøg på at booke flere gange med samme e-mail til et event, skal brugeren få en fejlbesked om, at der allerede er foretaget en booking ().
+    - Evt. kun én booking pr. event pr. e-mail: Systemet skal sikre, at hver e-mailadresse kun kan booke billetter til det samme event én gang. Ved forsøg på at booke flere gange med samme e-mail til et event, skal brugeren få en fejlbesked om, at der allerede er foretaget en booking.
 
 ## User stories
 
