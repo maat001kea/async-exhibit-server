@@ -19,7 +19,7 @@ Følgende wireframe-illustration viser en mulig opdeling af systemet:
 
 - Forside (offentlig): Kunne vise en åbningsmulighed for kuratoren, en liste over events eller begge dele. Vær kreativ!
 - Kurator-side(r) (bag login): Opret form, vælg SMK-værker, ret eksisterende events. Her ligger den primære funktionalitets- og UX-mæssige opgave.
-- Event-side (off): Viser oversigt over værker, dato, lokation mm. Indeholder booking-formular. Her skal I give den gas UI-mæssigt
+- Event-side (offentlig): Viser oversigt over værker, dato, lokation mm. Indeholder booking-formular. Her skal I give den gas UI-mæssigt
 
 ![Wireframe eksempel](public/wireframe.png)
 
