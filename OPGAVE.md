@@ -59,12 +59,13 @@ Følgende wireframe-illustration viser en mulig opdeling af systemet:
 - Ved oprettelse eller redigering af et event skal kuratoren kunne søge eller filtere i SMK's API (f.eks. via en dropdown eller et søgefelt) for at finde kunstværker, der skal tilføjes eventet. (se inspiration nederst).
 - Hvert værk i SMK's API har et unikt ID, som gemmes i eventets artworkIds-felt.
 - Public side: Viser værkerne med billede og relevante data, så besøgende kan se, hvilke værker der bliver udstillet.
+  - Hent evt. supplerende oplysninger om fx teknik eller kunstnere fra eksterne kilder som [Wikipedias REST-API](https://da.wikipedia.org/api/rest_v1/#/Page%20content/get_page_summary__title_). For eksempel kan der vises en kort forklaring på teknikken "Kobberstik" ved at hente og vise et uddrag fra Wikipedia direkte i brugergrænsefladen.
 
 ### 4. Booking og grænser
 
 - Der er et maksimalt antal billetter til eventet (defineret af lokationens kapacitet).
 - Brugeren må ikke kunne booke flere billetter, end der er tilgængelige.
-- Systemet opdaterer antallet af bookede billetter jævnligt (hvert 10. minut), og giver feedback ved booking:
+- Systemet opdaterer antallet af bookede billetter til et givent event jævnligt (hvert 10. minut), og giver feedback ved booking:
   - Succes (billetter er booket)
   - Fejl (der er ikke nok pladser tilbage)
 
