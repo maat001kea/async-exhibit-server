@@ -137,7 +137,7 @@ exports.bookTickets = async (req, res, next) => {
     const unlock = await bookingLock.lock();
     try {
       const event = events.find((e) => e.id === id);
-      if (!event) return res.status(404).json({ message: "Event not founds" });
+      if (!event) return res.status(404).json({ message: "Event not found" });
 
       if (event.bookedTickets + tickets > event.totalTickets) {
         return res.status(400).json({ message: "Not enough tickets available" });
