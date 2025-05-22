@@ -38,7 +38,7 @@ exports.getEventById = async (req, res, next) => {
       event.artworkIds = [getRandomPlaceholder()];
     }
     const location = locations.find((loc) => loc.id === event.locationId);
-    res.json({ ...event, location });
+    res.json({ ...event, location, imageUrl: event.imageUrl || "", imagePath: event.imagePath || "" });
   } catch (error) {
     next(error);
   }
@@ -46,8 +46,7 @@ exports.getEventById = async (req, res, next) => {
 
 exports.createEvent = async (req, res, next) => {
   try {
-    //  NYT: inkluderer imageUrl fra frontend (f.eks. Supabase public URL)
-    const { title, description, date, locationId, curator, artworkIds, imageUrl } = req.body;
+    const { title, description, date, locationId, curator, artworkIds, imageUrl, imagePath } = req.body;
 
     if (!allowedDates.includes(date)) {
       return res.status(400).json({
@@ -71,7 +70,8 @@ exports.createEvent = async (req, res, next) => {
       totalTickets: location.maxGuests,
       bookedTickets: 0,
       artworkIds: artworkIds || [],
-      imageUrl: imageUrl || "", //  NYT: gemmer billede-URL, hvis sendt
+      imageUrl: imageUrl || "",
+      imagePath: imagePath || "",
     };
 
     events.push(newEvent);
@@ -84,9 +84,7 @@ exports.createEvent = async (req, res, next) => {
 exports.updateEvent = async (req, res, next) => {
   try {
     const eventId = req.params.id;
-
-    //  NYT: imageUrl tilladt fra frontend
-    const { title, date, locationId, curator, description, artworkIds, imageUrl } = req.body;
+    const { title, date, locationId, curator, description, artworkIds, imageUrl, imagePath } = req.body;
 
     const eventIndex = events.findIndex((e) => e.id === eventId);
     if (eventIndex === -1) {
@@ -119,9 +117,8 @@ exports.updateEvent = async (req, res, next) => {
     if (curator !== undefined) currentEvent.curator = curator;
     if (description !== undefined) currentEvent.description = description;
     if (artworkIds !== undefined) currentEvent.artworkIds = artworkIds;
-
-    // NYT: hvis imageUrl er sendt med, gem det
     if (imageUrl !== undefined) currentEvent.imageUrl = imageUrl;
+    if (imagePath !== undefined) currentEvent.imagePath = imagePath;
 
     events[eventIndex] = currentEvent;
     res.json(currentEvent);
