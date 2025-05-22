@@ -5,12 +5,7 @@ function getRandomPlaceholder() {
   return placeholderImages[index];
 }
 
-const {
-  events,
-  locations,
-  allowedDates,
-  generateEvents,
-} = require("../models/data");
+const { events, locations, allowedDates, generateEvents } = require("../models/data");
 const { v4: uuidv4 } = require("uuid");
 const Mutex = require("../utils/lock");
 const bookingLock = new Mutex();
@@ -52,8 +47,7 @@ exports.getEventById = async (req, res, next) => {
 
 exports.createEvent = async (req, res, next) => {
   try {
-    const { title, description, date, locationId, curator, artworkIds } =
-      req.body;
+    const { title, description, date, locationId, curator, artworkIds } = req.body;
 
     if (!allowedDates.includes(date)) {
       return res.status(400).json({
@@ -61,16 +55,10 @@ exports.createEvent = async (req, res, next) => {
       });
     }
     const location = locations.find((l) => l.id === locationId);
-    if (!location)
-      return res.status(404).json({ message: "Location not found" });
+    if (!location) return res.status(404).json({ message: "Location not found" });
 
-    const conflict = events.find(
-      (e) => e.date === date && e.locationId === locationId
-    );
-    if (conflict)
-      return res
-        .status(400)
-        .json({ message: "Location already in use on this date" });
+    const conflict = events.find((e) => e.date === date && e.locationId === locationId);
+    if (conflict) return res.status(400).json({ message: "Location already in use on this date" });
 
     const newEvent = {
       id: uuidv4(),
@@ -93,8 +81,7 @@ exports.createEvent = async (req, res, next) => {
 exports.updateEvent = async (req, res, next) => {
   try {
     const eventId = req.params.id;
-    const { title, date, locationId, curator, description, artworkIds } =
-      req.body;
+    const { title, date, locationId, curator, description, artworkIds } = req.body;
 
     // Find det event, der skal opdateres.
     const eventIndex = events.findIndex((e) => e.id === eventId);
@@ -106,20 +93,13 @@ exports.updateEvent = async (req, res, next) => {
 
     // Kombiner de nye værdier med de eksisterende, så vi altid har en fuldstændig opdateret sammenligningsversion.
     const updatedDate = date !== undefined ? date : currentEvent.date;
-    const updatedLocation =
-      locationId !== undefined ? locationId : currentEvent.locationId;
+    const updatedLocation = locationId !== undefined ? locationId : currentEvent.locationId;
 
     // Tjek for konflikt: Sørg for, at intet andet event (med forskelligt id) har samme kombination af dato og lokation.
-    const conflict = events.find(
-      (e) =>
-        e.id !== eventId &&
-        e.date === updatedDate &&
-        e.locationId === updatedLocation
-    );
+    const conflict = events.find((e) => e.id !== eventId && e.date === updatedDate && e.locationId === updatedLocation);
     if (conflict) {
       return res.status(409).json({
-        message:
-          "Conflict: Another event already exists at this date and location.",
+        message: "Conflict: Another event already exists at this date and location.",
       });
     }
 
@@ -157,12 +137,10 @@ exports.bookTickets = async (req, res, next) => {
     const unlock = await bookingLock.lock();
     try {
       const event = events.find((e) => e.id === id);
-      if (!event) return res.status(404).json({ message: "Event not found" });
+      if (!event) return res.status(404).json({ message: "Event not founds" });
 
       if (event.bookedTickets + tickets > event.totalTickets) {
-        return res
-          .status(400)
-          .json({ message: "Not enough tickets available" });
+        return res.status(400).json({ message: "Not enough tickets available" });
       }
       event.bookedTickets += tickets;
       res.json({ message: "Tickets booked", event });
