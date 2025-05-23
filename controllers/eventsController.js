@@ -10,6 +10,12 @@ function getRandomPlaceholder() {
   return placeholderImages[index];
 }
 
+<<<<<<< HEAD
+=======
+const { events, locations, allowedDates, generateEvents } = require("../models/data");
+const { v4: uuidv4 } = require("uuid");
+const Mutex = require("../utils/lock");
+>>>>>>> imageEventController
 const bookingLock = new Mutex();
 
 // Supabase client med service role key
@@ -58,17 +64,27 @@ exports.getEventById = async (req, res, next) => {
 
 exports.createEvent = async (req, res, next) => {
   try {
+<<<<<<< HEAD
     const { title, description, date, locationId, curator, artworkIds, imageUrl, imagePath } = req.body;
+=======
+    const { title, description, date, locationId, curator, artworkIds } = req.body;
+>>>>>>> imageEventController
 
     if (!allowedDates.includes(date)) {
       return res.status(400).json({
         message: "Invalid date – must be one of: " + allowedDates.join(", "),
       });
     }
+<<<<<<< HEAD
 
     const location = locations.find((l) => l.id === locationId);
     if (!location) return res.status(404).json({ message: "Location not found" });
 
+=======
+    const location = locations.find((l) => l.id === locationId);
+    if (!location) return res.status(404).json({ message: "Location not found" });
+
+>>>>>>> imageEventController
     const conflict = events.find((e) => e.date === date && e.locationId === locationId);
     if (conflict) return res.status(400).json({ message: "Location already in use on this date" });
 
@@ -96,7 +112,11 @@ exports.createEvent = async (req, res, next) => {
 exports.updateEvent = async (req, res, next) => {
   try {
     const eventId = req.params.id;
+<<<<<<< HEAD
     const { title, date, locationId, curator, description, artworkIds, imageUrl, imagePath } = req.body;
+=======
+    const { title, date, locationId, curator, description, artworkIds } = req.body;
+>>>>>>> imageEventController
 
     const eventIndex = events.findIndex((e) => e.id === eventId);
     if (eventIndex === -1) {
@@ -107,6 +127,10 @@ exports.updateEvent = async (req, res, next) => {
     const updatedDate = date !== undefined ? date : currentEvent.date;
     const updatedLocation = locationId !== undefined ? locationId : currentEvent.locationId;
 
+<<<<<<< HEAD
+=======
+    // Tjek for konflikt: Sørg for, at intet andet event (med forskelligt id) har samme kombination af dato og lokation.
+>>>>>>> imageEventController
     const conflict = events.find((e) => e.id !== eventId && e.date === updatedDate && e.locationId === updatedLocation);
     if (conflict) {
       return res.status(409).json({
