@@ -1,3 +1,8 @@
+const { v4: uuidv4 } = require("uuid");
+const { createClient } = require("@supabase/supabase-js");
+const Mutex = require("../utils/lock");
+const { events, locations, allowedDates, generateEvents } = require("../models/data");
+
 const placeholderImages = ["KKSgb22422", "KKSgb22423"];
 
 function getRandomPlaceholder() {
@@ -5,13 +10,9 @@ function getRandomPlaceholder() {
   return placeholderImages[index];
 }
 
-const { events, locations, allowedDates, generateEvents } = require("../models/data");
-const { v4: uuidv4 } = require("uuid");
-const Mutex = require("../utils/lock");
 const bookingLock = new Mutex();
 
-// Tilføj Supabase client
-const { createClient } = require("@supabase/supabase-js");
+// Supabase client med service role key
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 // ----------------------------
@@ -170,7 +171,6 @@ exports.deleteEvent = async (req, res, next) => {
       return res.status(404).json({ message: "Event not found." });
     }
 
-    // Slet billede fra Supabase hvis imagePath findes
     const { imagePath } = events[eventIndex];
     if (imagePath) {
       try {
@@ -208,3 +208,25 @@ exports.resetEvents = async (req, res, next) => {
     next(error);
   }
 };
+
+// ✅ Ny funktion til at slette billede direkte via API
+exports.deleteImage = async (req, res, next) => {
+  try {
+    const { imagePath } = req.body;
+    if (!imagePath) {
+      return res.status(400).json({ message: "imagePath mangler" });
+    }
+
+    const { error } = await supabase.storage.from("events").remove([imagePath]);
+
+    if (error) {
+      console.error("❌ Fejl ved sletning af billede:", error.message);
+      return res.status(500).json({ message: error.message });
+    }
+
+    res.json({ message: "Billede slettet" });
+  } catch (error) {
+    next(error);
+  }
+};
+n;
