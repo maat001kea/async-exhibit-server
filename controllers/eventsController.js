@@ -10,6 +10,12 @@ const { v4: uuidv4 } = require("uuid");
 const Mutex = require("../utils/lock");
 const bookingLock = new Mutex();
 
+// Tilføj Supabase client
+const { createClient } = require("@supabase/supabase-js");
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+
+// ----------------------------
+
 exports.getEvents = async (req, res, next) => {
   try {
     const locationsMap = new Map(locations.map((loc) => [loc.id, loc]));
@@ -38,7 +44,12 @@ exports.getEventById = async (req, res, next) => {
       event.artworkIds = [getRandomPlaceholder()];
     }
     const location = locations.find((loc) => loc.id === event.locationId);
-    res.json({ ...event, location, imageUrl: event.imageUrl || "", imagePath: event.imagePath || "" });
+    res.json({
+      ...event,
+      location,
+      imageUrl: event.imageUrl || "",
+      imagePath: event.imagePath || "",
+    });
   } catch (error) {
     next(error);
   }
@@ -157,6 +168,19 @@ exports.deleteEvent = async (req, res, next) => {
     const eventIndex = events.findIndex((e) => e.id === eventId);
     if (eventIndex === -1) {
       return res.status(404).json({ message: "Event not found." });
+    }
+
+    // Slet billede fra Supabase hvis imagePath findes
+    const { imagePath } = events[eventIndex];
+    if (imagePath) {
+      try {
+        const { error: storageError } = await supabase.storage.from("events").remove([imagePath]);
+        if (storageError) {
+          console.warn("⚠️ Kunne ikke slette billede fra Supabase:", storageError.message);
+        }
+      } catch (err) {
+        console.warn("⚠️ Supabase fejl:", err.message);
+      }
     }
 
     const deletedEvent = events.splice(eventIndex, 1);
