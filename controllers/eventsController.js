@@ -14,7 +14,6 @@ exports.getEvents = async (req, res, next) => {
   try {
     const locationsMap = new Map(locations.map((loc) => [loc.id, loc]));
     const enriched = events.map((e) => {
-      // Hvis artworkIds ikke findes eller er tomt, tilføj en placeholder
       if (!e.artworkIds || e.artworkIds.length === 0) {
         e.artworkIds = [getRandomPlaceholder()];
       }
@@ -47,7 +46,8 @@ exports.getEventById = async (req, res, next) => {
 
 exports.createEvent = async (req, res, next) => {
   try {
-    const { title, description, date, locationId, curator, artworkIds } = req.body;
+    // ✅ ÆNDRET: Tilføjet "image" i destructuring, så vi kan modtage billed-URL fra frontend
+    const { title, description, date, locationId, curator, artworkIds, image } = req.body;
 
     if (!allowedDates.includes(date)) {
       return res.status(400).json({
@@ -70,6 +70,8 @@ exports.createEvent = async (req, res, next) => {
       totalTickets: location.maxGuests,
       bookedTickets: 0,
       artworkIds: artworkIds || [],
+      // ✅ ÆNDRET: Gem "image" i event, så det kan bruges i frontend
+      image: image || "", // gem billedets URL, hvis det findes
     };
     events.push(newEvent);
     res.status(201).json(newEvent);
@@ -81,9 +83,9 @@ exports.createEvent = async (req, res, next) => {
 exports.updateEvent = async (req, res, next) => {
   try {
     const eventId = req.params.id;
-    const { title, date, locationId, curator, description, artworkIds } = req.body;
+    // ✅ ÆNDRET: Tilføjet "image" i destructuring, så vi kan opdatere billedet hvis nødvendigt
+    const { title, date, locationId, curator, description, artworkIds, image } = req.body;
 
-    // Find det event, der skal opdateres.
     const eventIndex = events.findIndex((e) => e.id === eventId);
     if (eventIndex === -1) {
       return res.status(404).json({ message: "Event not found." });
@@ -91,11 +93,9 @@ exports.updateEvent = async (req, res, next) => {
 
     const currentEvent = events[eventIndex];
 
-    // Kombiner de nye værdier med de eksisterende, så vi altid har en fuldstændig opdateret sammenligningsversion.
     const updatedDate = date !== undefined ? date : currentEvent.date;
     const updatedLocation = locationId !== undefined ? locationId : currentEvent.locationId;
 
-    // Tjek for konflikt: Sørg for, at intet andet event (med forskelligt id) har samme kombination af dato og lokation.
     const conflict = events.find((e) => e.id !== eventId && e.date === updatedDate && e.locationId === updatedLocation);
     if (conflict) {
       return res.status(409).json({
@@ -103,24 +103,22 @@ exports.updateEvent = async (req, res, next) => {
       });
     }
 
-    // Hvis der ikke er konflikt, opdateres de leverede felter.
     if (title !== undefined) currentEvent.title = title;
     if (date !== undefined) currentEvent.date = date;
     if (locationId !== undefined) {
-      // Sørg for, at den nye lokation findes.
       const location = locations.find((l) => l.id === locationId);
       if (!location) {
         return res.status(404).json({ message: "Location not found." });
       }
       currentEvent.locationId = locationId;
-      // Opdater totalTickets baseret på den nye lokations kapacitet.
       currentEvent.totalTickets = location.maxGuests;
     }
     if (curator !== undefined) currentEvent.curator = curator;
     if (description !== undefined) currentEvent.description = description;
     if (artworkIds !== undefined) currentEvent.artworkIds = artworkIds;
+    //  ÆNDRET: Gem billedets URL i event, hvis det er med i opdatering
+    if (image !== undefined) currentEvent.image = image;
 
-    // Gem det opdaterede event.
     events[eventIndex] = currentEvent;
     res.json(currentEvent);
   } catch (error) {
@@ -133,7 +131,6 @@ exports.bookTickets = async (req, res, next) => {
     const { id } = req.params;
     const { tickets } = req.body;
 
-    // Lås anvendes for at forhindre race conditions
     const unlock = await bookingLock.lock();
     try {
       const event = events.find((e) => e.id === id);
@@ -160,7 +157,6 @@ exports.deleteEvent = async (req, res, next) => {
       return res.status(404).json({ message: "Event not found." });
     }
 
-    // Fjern eventet fra arrayet
     const deletedEvent = events.splice(eventIndex, 1);
     res.json({
       message: "Event deleted successfully.",
@@ -176,7 +172,6 @@ exports.resetEvents = async (req, res, next) => {
     const unlock = await bookingLock.lock();
     try {
       const newEvents = generateEvents();
-      // Ryd den eksisterende events-array og kopier de nye events ind
       events.length = 0;
       newEvents.forEach((e) => events.push(e));
       res.json({ message: "Events reset" });
