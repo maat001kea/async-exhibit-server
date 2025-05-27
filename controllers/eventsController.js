@@ -9,8 +9,6 @@ const { events, locations, allowedDates, generateEvents } = require("../models/d
 const { v4: uuidv4 } = require("uuid");
 const Mutex = require("../utils/lock");
 const bookingLock = new Mutex();
-const fs = require("fs/promises");
-const path = require("path");
 
 exports.getEvents = async (req, res, next) => {
   try {
@@ -187,54 +185,5 @@ exports.resetEvents = async (req, res, next) => {
     }
   } catch (error) {
     next(error);
-  }
-};
-
-/**
- * Seed events from dummy-events.json
- */
-exports.seedEvents = async (req, res, next) => {
-  try {
-    const unlock = await bookingLock.lock();
-    try {
-      // Læs dummy-data
-      const file = path.join(__dirname, "../public/dummy-events.json");
-      const raw = await fs.readFile(file, "utf-8");
-      const dummy = JSON.parse(raw);
-
-      // Ryd alle eksisterende events
-      events.length = 0;
-
-      dummy.forEach((d) => {
-        // Valider dato
-        if (!allowedDates.includes(d.date)) return;
-        // Find lokation
-        const loc = locations.find((l) => l.id === d.locationId);
-        if (!loc) return;
-
-        // Sæt total og tilfældigt booked (inkl. nogle udsolgte)
-        const total = loc.maxGuests;
-        // 20% chance for udsolgt, ellers random
-        const booked = Math.random() < 0.2 ? total : Math.floor(Math.random() * (total + 1));
-
-        events.push({
-          id: d.id || uuidv4(),
-          title: d.title,
-          description: d.description || "",
-          date: d.date,
-          locationId: d.locationId,
-          curator: d.curator,
-          artworkIds: d.artworkIds || [],
-          totalTickets: total,
-          bookedTickets: booked,
-        });
-      });
-
-      res.json({ message: "Events seeded", count: events.length });
-    } finally {
-      unlock();
-    }
-  } catch (err) {
-    next(err);
   }
 };
