@@ -32,12 +32,15 @@ exports.getEvents = async (req, res, next) => {
     const locationsMap = new Map(locations.map((loc) => [loc.id, loc]));
 
     const enriched = events.map((e) => {
+      // Hvis artworkIds mangler, sæt til dummy eller default filnavn
       if (!e.artworkIds || e.artworkIds.length === 0) {
-        e.artworkIds = [e.id]; // Gem kun ID, ikke hele URL
+        e.artworkIds = [dummyImageURL.split("/").pop()]; // fx "dummy.png"
       }
 
-      // Brug artworkIds[0] som billedfilnavn (f.eks. "1748363029761.png")
-      const imageUrl = getArtworkUrl(e.artworkIds[0]);
+      // Sørg for artworkIds er filnavne med filendelse
+      const artworkFileName = e.artworkIds[0].includes(".") ? e.artworkIds[0] : `${e.artworkIds[0]}.png`;
+
+      const imageUrl = getArtworkUrl(artworkFileName);
       const location = locationsMap.get(e.locationId);
 
       return {
@@ -64,10 +67,11 @@ exports.getEventById = async (req, res, next) => {
     }
 
     if (!event.artworkIds || event.artworkIds.length === 0) {
-      event.artworkIds = [event.id];
+      event.artworkIds = [dummyImageURL.split("/").pop()];
     }
 
-    const imageUrl = getArtworkUrl(event.artworkIds[0]);
+    const artworkFileName = event.artworkIds[0].includes(".") ? event.artworkIds[0] : `${event.artworkIds[0]}.png`;
+    const imageUrl = getArtworkUrl(artworkFileName);
     const location = locations.find((loc) => loc.id === event.locationId);
 
     res.json({
@@ -102,6 +106,10 @@ exports.createEvent = async (req, res, next) => {
     }
 
     const id = uuidv4();
+
+    // artworkIds forventes at være filnavne med filendelse, hvis ikke så tilføj det
+    const normalizedArtworkIds = artworkIds && artworkIds.length > 0 ? artworkIds.map((filename) => (filename.includes(".") ? filename : `${filename}.png`)) : [`${id}.png`]; // fallback
+
     const newEvent = {
       id,
       title,
@@ -111,12 +119,12 @@ exports.createEvent = async (req, res, next) => {
       curator,
       totalTickets: location.maxGuests,
       bookedTickets: 0,
-      artworkIds: artworkIds && artworkIds.length > 0 ? artworkIds : [id], // Gem kun id som filnavn
+      artworkIds: normalizedArtworkIds,
     };
 
     events.push(newEvent);
 
-    const imageUrl = getArtworkUrl(newEvent.artworkIds[0]);
+    const imageUrl = getArtworkUrl(normalizedArtworkIds[0]);
 
     res.status(201).json({
       ...newEvent,
@@ -161,10 +169,11 @@ exports.updateEvent = async (req, res, next) => {
     }
     if (curator !== undefined) currentEvent.curator = curator;
     if (description !== undefined) currentEvent.description = description;
+
     if (artworkIds !== undefined && artworkIds.length > 0) {
-      currentEvent.artworkIds = artworkIds;
+      currentEvent.artworkIds = artworkIds.map((filename) => (filename.includes(".") ? filename : `${filename}.png`));
     } else if (!currentEvent.artworkIds || currentEvent.artworkIds.length === 0) {
-      currentEvent.artworkIds = [eventId];
+      currentEvent.artworkIds = [`${eventId}.png`];
     }
 
     events[eventIndex] = currentEvent;
