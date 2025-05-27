@@ -7,11 +7,11 @@ const SUPABASE_PUBLIC_URL = "https://laqizwqplonobdzjohhg.supabase.co/storage/v1
 const dummyImageURL = `${SUPABASE_PUBLIC_URL}/dummy.png`;
 
 // Returnér URL’en til eventets billede - undgår dobbelt skråstreg i URL
-function getArtworkUrl(eventId) {
+function getArtworkUrl(filename) {
   const base = SUPABASE_PUBLIC_URL.endsWith("/") ? SUPABASE_PUBLIC_URL.slice(0, -1) : SUPABASE_PUBLIC_URL;
-  const idPart = eventId.startsWith("/") ? eventId.slice(1) : eventId;
+  const idPart = filename.startsWith("/") ? filename.slice(1) : filename;
   const url = `${base}/${idPart}.png`;
-  console.log("Generating imageUrl for event:", eventId, url); // Log URL til debugging
+  console.log("Generating imageUrl for event:", filename, url); // Log URL til debugging
   return url;
 }
 
