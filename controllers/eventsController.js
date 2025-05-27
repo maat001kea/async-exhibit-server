@@ -6,12 +6,23 @@ const bookingLock = new Mutex();
 const SUPABASE_PUBLIC_URL = "https://laqizwqplonobdzjohhg.supabase.co/storage/v1/object/public/artworks";
 const dummyImageURL = `${SUPABASE_PUBLIC_URL}/dummy.png`;
 
-// Returnér URL’en til eventets billede - undgår dobbelt skråstreg i URL
+// Returnér URL’en til eventets billede - håndterer filnavne korrekt uden at tilføje ".png" hvis det allerede er der
 function getArtworkUrl(filename) {
   const base = SUPABASE_PUBLIC_URL.endsWith("/") ? SUPABASE_PUBLIC_URL.slice(0, -1) : SUPABASE_PUBLIC_URL;
-  const idPart = filename.startsWith("/") ? filename.slice(1) : filename;
-  const url = `${base}/${idPart}.png`;
-  console.log("Generating imageUrl for event:", filename, url); // Log URL til debugging
+  let filePart = filename;
+
+  // Hvis filename er et ID (UUID) uden filendelse, tilføj .png
+  if (!filename.includes(".")) {
+    filePart = `${filename}.png`;
+  }
+
+  // Hvis filename starter med / fjern den
+  if (filePart.startsWith("/")) {
+    filePart = filePart.slice(1);
+  }
+
+  const url = `${base}/${filePart}`;
+  console.log("Generating imageUrl for event:", filename, url);
   return url;
 }
 
@@ -25,7 +36,8 @@ exports.getEvents = async (req, res, next) => {
         e.artworkIds = [getArtworkUrl(e.id)];
       }
 
-      const imageUrl = getArtworkUrl(e.id);
+      // Brug artworkIds[0] som billedfilnavn
+      const imageUrl = getArtworkUrl(e.artworkIds[0]);
       const location = locationsMap.get(e.locationId);
 
       return {
@@ -55,7 +67,7 @@ exports.getEventById = async (req, res, next) => {
       event.artworkIds = [getArtworkUrl(event.id)];
     }
 
-    const imageUrl = getArtworkUrl(event.id);
+    const imageUrl = getArtworkUrl(event.artworkIds[0]);
     const location = locations.find((loc) => loc.id === event.locationId);
 
     res.json({
@@ -99,12 +111,12 @@ exports.createEvent = async (req, res, next) => {
       curator,
       totalTickets: location.maxGuests,
       bookedTickets: 0,
-      artworkIds: artworkIds && artworkIds.length > 0 ? artworkIds : [getArtworkUrl(id)],
+      artworkIds: artworkIds && artworkIds.length > 0 ? artworkIds : [id], // gem kun id, ikke hele URL
     };
 
     events.push(newEvent);
 
-    const imageUrl = getArtworkUrl(id);
+    const imageUrl = getArtworkUrl(newEvent.artworkIds[0]);
 
     res.status(201).json({
       ...newEvent,
@@ -152,12 +164,12 @@ exports.updateEvent = async (req, res, next) => {
     if (artworkIds !== undefined && artworkIds.length > 0) {
       currentEvent.artworkIds = artworkIds;
     } else if (!currentEvent.artworkIds || currentEvent.artworkIds.length === 0) {
-      currentEvent.artworkIds = [getArtworkUrl(eventId)];
+      currentEvent.artworkIds = [eventId];
     }
 
     events[eventIndex] = currentEvent;
 
-    const imageUrl = getArtworkUrl(eventId);
+    const imageUrl = getArtworkUrl(currentEvent.artworkIds[0]);
 
     res.json({
       ...currentEvent,
