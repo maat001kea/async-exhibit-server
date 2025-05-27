@@ -22,8 +22,6 @@ class Mutex {
       this._locked = true;
       return Promise.resolve(unlock);
     }
-
-    //ff
   }
 }
 
