@@ -11,12 +11,12 @@ function getArtworkUrl(filename) {
   const base = SUPABASE_PUBLIC_URL.endsWith("/") ? SUPABASE_PUBLIC_URL.slice(0, -1) : SUPABASE_PUBLIC_URL;
   let filePart = filename;
 
-  // Hvis filename er et ID (UUID) uden filendelse, tilføj .png
+  // Hvis filename ikke indeholder et punktum, antag at det mangler filendelse og tilføj .png
   if (!filename.includes(".")) {
     filePart = `${filename}.png`;
   }
 
-  // Hvis filename starter med / fjern den
+  // Fjern start-slash hvis der er en
   if (filePart.startsWith("/")) {
     filePart = filePart.slice(1);
   }
@@ -33,10 +33,10 @@ exports.getEvents = async (req, res, next) => {
 
     const enriched = events.map((e) => {
       if (!e.artworkIds || e.artworkIds.length === 0) {
-        e.artworkIds = [getArtworkUrl(e.id)];
+        e.artworkIds = [e.id]; // Gem kun ID, ikke hele URL
       }
 
-      // Brug artworkIds[0] som billedfilnavn
+      // Brug artworkIds[0] som billedfilnavn (f.eks. "1748363029761.png")
       const imageUrl = getArtworkUrl(e.artworkIds[0]);
       const location = locationsMap.get(e.locationId);
 
@@ -64,7 +64,7 @@ exports.getEventById = async (req, res, next) => {
     }
 
     if (!event.artworkIds || event.artworkIds.length === 0) {
-      event.artworkIds = [getArtworkUrl(event.id)];
+      event.artworkIds = [event.id];
     }
 
     const imageUrl = getArtworkUrl(event.artworkIds[0]);
@@ -111,7 +111,7 @@ exports.createEvent = async (req, res, next) => {
       curator,
       totalTickets: location.maxGuests,
       bookedTickets: 0,
-      artworkIds: artworkIds && artworkIds.length > 0 ? artworkIds : [id], // gem kun id, ikke hele URL
+      artworkIds: artworkIds && artworkIds.length > 0 ? artworkIds : [id], // Gem kun id som filnavn
     };
 
     events.push(newEvent);
