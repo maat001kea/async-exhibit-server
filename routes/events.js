@@ -12,7 +12,7 @@ router.post("/reset", eventsController.resetEvents);
 
 module.exports = router;
 
-// module.exports = router;
+// module.exports = router;test
 
 // router.get("/", eventsController.getEvents);
 // router.post("/", eventsController.createEvent);
