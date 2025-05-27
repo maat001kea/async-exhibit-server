@@ -7,10 +7,9 @@ const { createClient } = require("@supabase/supabase-js");
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-const SUPABASE_PUBLIC_URL = "https://laqizwqplonobdzjohhg.supabase.co/storage/v1/object/public/artworks";
+const SUPABASE_PUBLIC_URL = "https://<din-project-ref>.supabase.co/storage/v1/object/public/artworks";
 const dummyImageURL = `${SUPABASE_PUBLIC_URL}/dummy.png`;
 
-// Finder billede-URL uanset filtype
 async function findImageUrl(eventId) {
   const { data, error } = await supabase.storage.from("artworks").list("", {
     limit: 1000,
@@ -49,7 +48,7 @@ exports.getEvents = async (req, res, next) => {
           bookedTickets: e.bookedTickets,
           artworkIds: e.artworkIds,
           location,
-          imageUrl,
+          imageUrl, // ✅ sidst!
         };
       })
     );
@@ -258,4 +257,3 @@ exports.resetEvents = async (req, res, next) => {
     next(error);
   }
 };
-//ffg
