@@ -6,9 +6,13 @@ const bookingLock = new Mutex();
 const SUPABASE_PUBLIC_URL = "https://laqizwqplonobdzjohhg.supabase.co/storage/v1/object/public/artworks";
 const dummyImageURL = `${SUPABASE_PUBLIC_URL}/dummy.png`;
 
-// Returnér URL’en til eventets billede baseret på filnavn
-function getArtworkUrl(fileName) {
-  return `${SUPABASE_PUBLIC_URL}/${fileName}`;
+// Returnér URL’en til eventets billede - undgår dobbelt skråstreg i URL
+function getArtworkUrl(eventId) {
+  const base = SUPABASE_PUBLIC_URL.endsWith("/") ? SUPABASE_PUBLIC_URL.slice(0, -1) : SUPABASE_PUBLIC_URL;
+  const idPart = eventId.startsWith("/") ? eventId.slice(1) : eventId;
+  const url = `${base}/${idPart}.png`;
+  console.log("Generating imageUrl for event:", eventId, url); // Log URL til debugging
+  return url;
 }
 
 // GET alle events
@@ -17,20 +21,17 @@ exports.getEvents = async (req, res, next) => {
     const locationsMap = new Map(locations.map((loc) => [loc.id, loc]));
 
     const enriched = events.map((e) => {
-      // Hvis artworkIds mangler, tilføj fallback til dummy.png
       if (!e.artworkIds || e.artworkIds.length === 0) {
-        e.artworkIds = ["dummy.png"];
+        e.artworkIds = [getArtworkUrl(e.id)];
       }
 
-      const imageUrl = getArtworkUrl(e.artworkIds[0]); // brug første filnavn i artworkIds
+      const imageUrl = getArtworkUrl(e.id);
       const location = locationsMap.get(e.locationId);
-
-      console.log("Generating imageUrl for event:", e.id, imageUrl);
 
       return {
         ...e,
         location,
-        imageUrl, // Tilføj imageUrl felt
+        imageUrl,
       };
     });
 
@@ -51,19 +52,16 @@ exports.getEventById = async (req, res, next) => {
     }
 
     if (!event.artworkIds || event.artworkIds.length === 0) {
-      event.artworkIds = ["dummy.png"];
+      event.artworkIds = [getArtworkUrl(event.id)];
     }
 
-    const imageUrl = getArtworkUrl(event.artworkIds[0]);
-
-    console.log("Generating imageUrl for event:", event.id, imageUrl);
-
+    const imageUrl = getArtworkUrl(event.id);
     const location = locations.find((loc) => loc.id === event.locationId);
 
     res.json({
       ...event,
       location,
-      imageUrl, // Tilføj imageUrl felt
+      imageUrl,
     });
   } catch (error) {
     next(error);
@@ -101,16 +99,16 @@ exports.createEvent = async (req, res, next) => {
       curator,
       totalTickets: location.maxGuests,
       bookedTickets: 0,
-      artworkIds: artworkIds && artworkIds.length > 0 ? artworkIds : ["dummy.png"], // Brug dummy.png som fallback
+      artworkIds: artworkIds && artworkIds.length > 0 ? artworkIds : [getArtworkUrl(id)],
     };
 
     events.push(newEvent);
 
-    const imageUrl = getArtworkUrl(newEvent.artworkIds[0]);
+    const imageUrl = getArtworkUrl(id);
 
     res.status(201).json({
       ...newEvent,
-      imageUrl, // Tilføj imageUrl felt
+      imageUrl,
     });
   } catch (error) {
     next(error);
@@ -154,16 +152,16 @@ exports.updateEvent = async (req, res, next) => {
     if (artworkIds !== undefined && artworkIds.length > 0) {
       currentEvent.artworkIds = artworkIds;
     } else if (!currentEvent.artworkIds || currentEvent.artworkIds.length === 0) {
-      currentEvent.artworkIds = ["dummy.png"];
+      currentEvent.artworkIds = [getArtworkUrl(eventId)];
     }
 
     events[eventIndex] = currentEvent;
 
-    const imageUrl = getArtworkUrl(currentEvent.artworkIds[0]);
+    const imageUrl = getArtworkUrl(eventId);
 
     res.json({
       ...currentEvent,
-      imageUrl, // Tilføj imageUrl felt
+      imageUrl,
     });
   } catch (error) {
     next(error);
@@ -229,6 +227,8 @@ exports.resetEvents = async (req, res, next) => {
     next(error);
   }
 };
+
+// Resten af koden (createEvent, updateEvent osv.) uændret, men brug samme getArtworkUrl funktion når du skal generere billede-url.
 
 // const { events, locations, allowedDates, generateEvents } = require("../models/data");
 // const { v4: uuidv4 } = require("uuid");
