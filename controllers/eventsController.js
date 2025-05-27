@@ -59,7 +59,7 @@ exports.createEvent = async (req, res, next) => {
 
     const conflict = events.find((e) => e.date === date && e.locationId === locationId);
     if (conflict) return res.status(400).json({ message: "Location already in use on this date" });
-
+    //ldld
     const newEvent = {
       id: uuidv4(),
       title,
