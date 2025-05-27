@@ -5,7 +5,7 @@ function getRandomPlaceholder() {
   return placeholderImages[index];
 }
 
-const { events, locations, allowedDates, generateEvents, artworks } = require("../models/data"); // ✅ Tilføj artworks
+const { events, locations, allowedDates, generateEvents } = require("../models/data");
 const { v4: uuidv4 } = require("uuid");
 const Mutex = require("../utils/lock");
 const bookingLock = new Mutex();
@@ -13,18 +13,13 @@ const bookingLock = new Mutex();
 exports.getEvents = async (req, res, next) => {
   try {
     const locationsMap = new Map(locations.map((loc) => [loc.id, loc]));
-    const artworksMap = new Map(artworks.map((art) => [art.id, art])); // ✅ Lookup map for artworks
-
     const enriched = events.map((e) => {
+      // Hvis artworkIds ikke findes eller er tomt, tilføj en placeholder
       if (!e.artworkIds || e.artworkIds.length === 0) {
         e.artworkIds = [getRandomPlaceholder()];
       }
       const location = locationsMap.get(e.locationId);
-
-      // ✅ Berig artworks
-      const enrichedArtworks = e.artworkIds.map((artId) => artworksMap.get(artId)).filter(Boolean);
-
-      return { ...e, location, artworks: enrichedArtworks }; // ✅ Tilføj artworks til event-objekt
+      return { ...e, location };
     });
     res.json(enriched);
   } catch (error) {
@@ -44,11 +39,7 @@ exports.getEventById = async (req, res, next) => {
       event.artworkIds = [getRandomPlaceholder()];
     }
     const location = locations.find((loc) => loc.id === event.locationId);
-
-    const artworksMap = new Map(artworks.map((art) => [art.id, art]));
-    const enrichedArtworks = event.artworkIds.map((artId) => artworksMap.get(artId)).filter(Boolean);
-
-    res.json({ ...event, location, artworks: enrichedArtworks }); // ✅ Tilføj artworks
+    res.json({ ...event, location });
   } catch (error) {
     next(error);
   }
@@ -56,7 +47,7 @@ exports.getEventById = async (req, res, next) => {
 
 exports.createEvent = async (req, res, next) => {
   try {
-    const { title, description, date, locationId, curator, artworkIds, image } = req.body;
+    const { title, description, date, locationId, curator, artworkIds } = req.body;
 
     if (!allowedDates.includes(date)) {
       return res.status(400).json({
@@ -79,7 +70,6 @@ exports.createEvent = async (req, res, next) => {
       totalTickets: location.maxGuests,
       bookedTickets: 0,
       artworkIds: artworkIds || [],
-      image: image || "", // ✅ Gem billed-URL hvis det findes
     };
     events.push(newEvent);
     res.status(201).json(newEvent);
@@ -91,8 +81,9 @@ exports.createEvent = async (req, res, next) => {
 exports.updateEvent = async (req, res, next) => {
   try {
     const eventId = req.params.id;
-    const { title, date, locationId, curator, description, artworkIds, image } = req.body;
+    const { title, date, locationId, curator, description, artworkIds } = req.body;
 
+    // Find det event, der skal opdateres.
     const eventIndex = events.findIndex((e) => e.id === eventId);
     if (eventIndex === -1) {
       return res.status(404).json({ message: "Event not found." });
@@ -100,9 +91,11 @@ exports.updateEvent = async (req, res, next) => {
 
     const currentEvent = events[eventIndex];
 
+    // Kombiner de nye værdier med de eksisterende, så vi altid har en fuldstændig opdateret sammenligningsversion.
     const updatedDate = date !== undefined ? date : currentEvent.date;
     const updatedLocation = locationId !== undefined ? locationId : currentEvent.locationId;
 
+    // Tjek for konflikt: Sørg for, at intet andet event (med forskelligt id) har samme kombination af dato og lokation.
     const conflict = events.find((e) => e.id !== eventId && e.date === updatedDate && e.locationId === updatedLocation);
     if (conflict) {
       return res.status(409).json({
@@ -110,21 +103,24 @@ exports.updateEvent = async (req, res, next) => {
       });
     }
 
+    // Hvis der ikke er konflikt, opdateres de leverede felter.
     if (title !== undefined) currentEvent.title = title;
     if (date !== undefined) currentEvent.date = date;
     if (locationId !== undefined) {
+      // Sørg for, at den nye lokation findes.
       const location = locations.find((l) => l.id === locationId);
       if (!location) {
         return res.status(404).json({ message: "Location not found." });
       }
       currentEvent.locationId = locationId;
+      // Opdater totalTickets baseret på den nye lokations kapacitet.
       currentEvent.totalTickets = location.maxGuests;
     }
     if (curator !== undefined) currentEvent.curator = curator;
     if (description !== undefined) currentEvent.description = description;
     if (artworkIds !== undefined) currentEvent.artworkIds = artworkIds;
-    if (image !== undefined) currentEvent.image = image; // ✅ Opdater billedet
 
+    // Gem det opdaterede event.
     events[eventIndex] = currentEvent;
     res.json(currentEvent);
   } catch (error) {
@@ -137,6 +133,7 @@ exports.bookTickets = async (req, res, next) => {
     const { id } = req.params;
     const { tickets } = req.body;
 
+    // Lås anvendes for at forhindre race conditions
     const unlock = await bookingLock.lock();
     try {
       const event = events.find((e) => e.id === id);
@@ -163,6 +160,7 @@ exports.deleteEvent = async (req, res, next) => {
       return res.status(404).json({ message: "Event not found." });
     }
 
+    // Fjern eventet fra arrayet
     const deletedEvent = events.splice(eventIndex, 1);
     res.json({
       message: "Event deleted successfully.",
@@ -178,6 +176,7 @@ exports.resetEvents = async (req, res, next) => {
     const unlock = await bookingLock.lock();
     try {
       const newEvents = generateEvents();
+      // Ryd den eksisterende events-array og kopier de nye events ind
       events.length = 0;
       newEvents.forEach((e) => events.push(e));
       res.json({ message: "Events reset" });
