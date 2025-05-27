@@ -5,7 +5,7 @@ function getRandomPlaceholder() {
   return placeholderImages[index];
 }
 
-const { events, locations, allowedDates, generateEvents } = require("../models/data");
+const { events, locations, allowedDates, generateEvents, artworks } = require("../models/data"); // ✅ Tilføj artworks
 const { v4: uuidv4 } = require("uuid");
 const Mutex = require("../utils/lock");
 const bookingLock = new Mutex();
@@ -13,12 +13,18 @@ const bookingLock = new Mutex();
 exports.getEvents = async (req, res, next) => {
   try {
     const locationsMap = new Map(locations.map((loc) => [loc.id, loc]));
+    const artworksMap = new Map(artworks.map((art) => [art.id, art])); // ✅ Lookup map for artworks
+
     const enriched = events.map((e) => {
       if (!e.artworkIds || e.artworkIds.length === 0) {
         e.artworkIds = [getRandomPlaceholder()];
       }
       const location = locationsMap.get(e.locationId);
-      return { ...e, location };
+
+      // ✅ Berig artworks
+      const enrichedArtworks = e.artworkIds.map((artId) => artworksMap.get(artId)).filter(Boolean);
+
+      return { ...e, location, artworks: enrichedArtworks }; // ✅ Tilføj artworks til event-objekt
     });
     res.json(enriched);
   } catch (error) {
@@ -38,7 +44,11 @@ exports.getEventById = async (req, res, next) => {
       event.artworkIds = [getRandomPlaceholder()];
     }
     const location = locations.find((loc) => loc.id === event.locationId);
-    res.json({ ...event, location });
+
+    const artworksMap = new Map(artworks.map((art) => [art.id, art]));
+    const enrichedArtworks = event.artworkIds.map((artId) => artworksMap.get(artId)).filter(Boolean);
+
+    res.json({ ...event, location, artworks: enrichedArtworks }); // ✅ Tilføj artworks
   } catch (error) {
     next(error);
   }
@@ -46,7 +56,6 @@ exports.getEventById = async (req, res, next) => {
 
 exports.createEvent = async (req, res, next) => {
   try {
-    // ✅ ÆNDRET: Tilføjet "image" i destructuring, så vi kan modtage billed-URL fra frontend
     const { title, description, date, locationId, curator, artworkIds, image } = req.body;
 
     if (!allowedDates.includes(date)) {
@@ -70,8 +79,7 @@ exports.createEvent = async (req, res, next) => {
       totalTickets: location.maxGuests,
       bookedTickets: 0,
       artworkIds: artworkIds || [],
-      // ✅ ÆNDRET: Gem "image" i event, så det kan bruges i frontend
-      image: image || "", // gem billedets URL, hvis det findes
+      image: image || "", // ✅ Gem billed-URL hvis det findes
     };
     events.push(newEvent);
     res.status(201).json(newEvent);
@@ -83,7 +91,6 @@ exports.createEvent = async (req, res, next) => {
 exports.updateEvent = async (req, res, next) => {
   try {
     const eventId = req.params.id;
-    // ✅ ÆNDRET: Tilføjet "image" i destructuring, så vi kan opdatere billedet hvis nødvendigt
     const { title, date, locationId, curator, description, artworkIds, image } = req.body;
 
     const eventIndex = events.findIndex((e) => e.id === eventId);
@@ -116,8 +123,7 @@ exports.updateEvent = async (req, res, next) => {
     if (curator !== undefined) currentEvent.curator = curator;
     if (description !== undefined) currentEvent.description = description;
     if (artworkIds !== undefined) currentEvent.artworkIds = artworkIds;
-    //  ÆNDRET: Gem billedets URL i event, hvis det er med i opdatering
-    if (image !== undefined) currentEvent.image = image;
+    if (image !== undefined) currentEvent.image = image; // ✅ Opdater billedet
 
     events[eventIndex] = currentEvent;
     res.json(currentEvent);
