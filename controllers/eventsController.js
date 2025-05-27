@@ -6,9 +6,9 @@ const bookingLock = new Mutex();
 const SUPABASE_PUBLIC_URL = "https://laqizwqplonobdzjohhg.supabase.co/storage/v1/object/public/artworks";
 const dummyImageURL = `${SUPABASE_PUBLIC_URL}/dummy.png`;
 
-// Returnér URL’en til eventets billede
-function getArtworkUrl(eventId) {
-  return `${SUPABASE_PUBLIC_URL}/${eventId}.png`;
+// Returnér URL’en til eventets billede baseret på filnavn
+function getArtworkUrl(fileName) {
+  return `${SUPABASE_PUBLIC_URL}/${fileName}`;
 }
 
 // GET alle events
@@ -17,20 +17,20 @@ exports.getEvents = async (req, res, next) => {
     const locationsMap = new Map(locations.map((loc) => [loc.id, loc]));
 
     const enriched = events.map((e) => {
-      // Hvis artworkIds mangler, tilføj fallback
+      // Hvis artworkIds mangler, tilføj fallback til dummy.png
       if (!e.artworkIds || e.artworkIds.length === 0) {
-        e.artworkIds = [getArtworkUrl(e.id)];
+        e.artworkIds = ["dummy.png"];
       }
 
-      const imageUrl = getArtworkUrl(e.id);
+      const imageUrl = getArtworkUrl(e.artworkIds[0]); // brug første filnavn i artworkIds
       const location = locationsMap.get(e.locationId);
 
-      console.log("Generating imageUrl for event:", e.id, imageUrl); // Her logger vi
+      console.log("Generating imageUrl for event:", e.id, imageUrl);
 
       return {
         ...e,
         location,
-        imageUrl, // Tilføjet imageUrl felt
+        imageUrl, // Tilføj imageUrl felt
       };
     });
 
@@ -51,19 +51,19 @@ exports.getEventById = async (req, res, next) => {
     }
 
     if (!event.artworkIds || event.artworkIds.length === 0) {
-      event.artworkIds = [getArtworkUrl(event.id)];
+      event.artworkIds = ["dummy.png"];
     }
 
-    const imageUrl = getArtworkUrl(event.id);
+    const imageUrl = getArtworkUrl(event.artworkIds[0]);
 
-    console.log("Generating imageUrl for event:", event.id, imageUrl); // Her logger vi
+    console.log("Generating imageUrl for event:", event.id, imageUrl);
 
     const location = locations.find((loc) => loc.id === event.locationId);
 
     res.json({
       ...event,
       location,
-      imageUrl, // Tilføjet imageUrl felt
+      imageUrl, // Tilføj imageUrl felt
     });
   } catch (error) {
     next(error);
@@ -101,16 +101,16 @@ exports.createEvent = async (req, res, next) => {
       curator,
       totalTickets: location.maxGuests,
       bookedTickets: 0,
-      artworkIds: artworkIds && artworkIds.length > 0 ? artworkIds : [getArtworkUrl(id)],
+      artworkIds: artworkIds && artworkIds.length > 0 ? artworkIds : ["dummy.png"], // Brug dummy.png som fallback
     };
 
     events.push(newEvent);
 
-    const imageUrl = getArtworkUrl(id);
+    const imageUrl = getArtworkUrl(newEvent.artworkIds[0]);
 
     res.status(201).json({
       ...newEvent,
-      imageUrl, // Tilføjet imageUrl felt
+      imageUrl, // Tilføj imageUrl felt
     });
   } catch (error) {
     next(error);
@@ -154,16 +154,16 @@ exports.updateEvent = async (req, res, next) => {
     if (artworkIds !== undefined && artworkIds.length > 0) {
       currentEvent.artworkIds = artworkIds;
     } else if (!currentEvent.artworkIds || currentEvent.artworkIds.length === 0) {
-      currentEvent.artworkIds = [getArtworkUrl(eventId)];
+      currentEvent.artworkIds = ["dummy.png"];
     }
 
     events[eventIndex] = currentEvent;
 
-    const imageUrl = getArtworkUrl(eventId);
+    const imageUrl = getArtworkUrl(currentEvent.artworkIds[0]);
 
     res.json({
       ...currentEvent,
-      imageUrl, // Tilføjet imageUrl felt
+      imageUrl, // Tilføj imageUrl felt
     });
   } catch (error) {
     next(error);
