@@ -3,35 +3,47 @@ const { v4: uuidv4 } = require("uuid");
 const Mutex = require("../utils/lock");
 const bookingLock = new Mutex();
 
-const SUPABASE_PUBLIC_URL = "https://<din-project-ref>.supabase.co/storage/v1/object/public/artworks";
+const SUPABASE_PUBLIC_URL = "https://laqizwqplonobdzjohhg.supabase.co/storage/v1/object/public/artworks";
 const dummyImageURL = `${SUPABASE_PUBLIC_URL}/dummy.png`;
 
-// Returnér URL’en til eventets artwork
+// Returnér URL’en til eventets billede
 function getArtworkUrl(eventId) {
   return `${SUPABASE_PUBLIC_URL}/${eventId}.png`;
 }
 
+// GET alle events
 exports.getEvents = async (req, res, next) => {
   try {
     const locationsMap = new Map(locations.map((loc) => [loc.id, loc]));
+
     const enriched = events.map((e) => {
-      // Hvis artworkIds mangler, tilføj event-id-billedet som fallback
+      // Hvis artworkIds mangler, tilføj fallback
       if (!e.artworkIds || e.artworkIds.length === 0) {
         e.artworkIds = [getArtworkUrl(e.id)];
       }
+
+      const imageUrl = getArtworkUrl(e.id);
       const location = locationsMap.get(e.locationId);
-      return { ...e, location };
+
+      return {
+        ...e,
+        location,
+        imageUrl, // 🔥 Tilføj imageUrl felt
+      };
     });
+
     res.json(enriched);
   } catch (error) {
     next(error);
   }
 };
 
+// GET enkelt event
 exports.getEventById = async (req, res, next) => {
   try {
     const eventId = req.params.id;
     const event = events.find((e) => e.id === eventId);
+
     if (!event) {
       return res.status(404).json({ message: "Event not found." });
     }
@@ -40,13 +52,20 @@ exports.getEventById = async (req, res, next) => {
       event.artworkIds = [getArtworkUrl(event.id)];
     }
 
+    const imageUrl = getArtworkUrl(event.id);
     const location = locations.find((loc) => loc.id === event.locationId);
-    res.json({ ...event, location });
+
+    res.json({
+      ...event,
+      location,
+      imageUrl, // 🔥 Tilføj imageUrl felt
+    });
   } catch (error) {
     next(error);
   }
 };
 
+// POST opret event
 exports.createEvent = async (req, res, next) => {
   try {
     const { title, description, date, locationId, curator, artworkIds } = req.body;
@@ -56,11 +75,16 @@ exports.createEvent = async (req, res, next) => {
         message: "Invalid date – must be one of: " + allowedDates.join(", "),
       });
     }
+
     const location = locations.find((l) => l.id === locationId);
-    if (!location) return res.status(404).json({ message: "Location not found" });
+    if (!location) {
+      return res.status(404).json({ message: "Location not found" });
+    }
 
     const conflict = events.find((e) => e.date === date && e.locationId === locationId);
-    if (conflict) return res.status(400).json({ message: "Location already in use on this date" });
+    if (conflict) {
+      return res.status(400).json({ message: "Location already in use on this date" });
+    }
 
     const id = uuidv4();
     const newEvent = {
@@ -74,13 +98,21 @@ exports.createEvent = async (req, res, next) => {
       bookedTickets: 0,
       artworkIds: artworkIds && artworkIds.length > 0 ? artworkIds : [getArtworkUrl(id)],
     };
+
     events.push(newEvent);
-    res.status(201).json(newEvent);
+
+    const imageUrl = getArtworkUrl(id);
+
+    res.status(201).json({
+      ...newEvent,
+      imageUrl, // 🔥 Tilføj imageUrl felt
+    });
   } catch (error) {
     next(error);
   }
 };
 
+// PUT opdater event
 exports.updateEvent = async (req, res, next) => {
   try {
     const eventId = req.params.id;
@@ -121,12 +153,19 @@ exports.updateEvent = async (req, res, next) => {
     }
 
     events[eventIndex] = currentEvent;
-    res.json(currentEvent);
+
+    const imageUrl = getArtworkUrl(eventId);
+
+    res.json({
+      ...currentEvent,
+      imageUrl, // 🔥 Tilføj imageUrl felt
+    });
   } catch (error) {
     next(error);
   }
 };
 
+// POST book billetter
 exports.bookTickets = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -150,6 +189,7 @@ exports.bookTickets = async (req, res, next) => {
   }
 };
 
+// DELETE event
 exports.deleteEvent = async (req, res, next) => {
   try {
     const eventId = req.params.id;
@@ -157,6 +197,7 @@ exports.deleteEvent = async (req, res, next) => {
     if (eventIndex === -1) {
       return res.status(404).json({ message: "Event not found." });
     }
+
     const deletedEvent = events.splice(eventIndex, 1);
     res.json({
       message: "Event deleted successfully.",
@@ -167,6 +208,7 @@ exports.deleteEvent = async (req, res, next) => {
   }
 };
 
+// POST reset events
 exports.resetEvents = async (req, res, next) => {
   try {
     const unlock = await bookingLock.lock();
